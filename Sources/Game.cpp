@@ -7,8 +7,7 @@ sf::Time const TimePerFrame = sf::seconds(1.f / 60.f);
 
 Game::Game() : mWindow(sf::VideoMode(800, 600, 32), "RPG Fantasy")
 {
-    Map map;
-    map.load("Maps/Test_1.txt", mWindow);
+
 }
 
 void Game::run()
@@ -58,5 +57,6 @@ void Game::update(sf::Time)
 void Game::render()
 {
     mWindow.clear();
+    mMap.load("Maps/Test_1.txt", mWindow);
     mWindow.display();
 }
