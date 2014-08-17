@@ -1,54 +1,62 @@
 #include <SFML/Graphics.hpp>
-#include <string>
-#include <fstream>
-#include <cctype>
 
+#include "Game.hpp"
 #include "Map.hpp"
 
-void Map::load(std::string filename, sf::RenderWindow& window)
+sf::Time const TimePerFrame = sf::seconds(1.f / 60.f);
+
+Game::Game() : mWindow(sf::VideoMode(800, 600, 32), "RPG Fantasy")
 {
-    std::fstream openfile(filename);
 
-    sf::Vector2i map[100][100];
-    sf::Vector2i loadCounter = sf::Vector2i(0, 0);
+}
 
-    if(openfile)
+void Game::run()
+{
+    sf::Clock clock;
+    sf::Time timeSinceLastUpdate = sf::Time::Zero;
+    while(mWindow.isOpen())
     {
-        std::string tileLocation;
-        openfile << tileLocation;
-        mTileTexture.loadFromFile(tileLocation);
-        mTiles.setTexture(mTileTexture);
-        while(!openfile.eof())
+        timeSinceLastUpdate += clock.restart();
+        processEvents();
+        update(TimePerFrame);
+        while(timeSinceLastUpdate > TimePerFrame)
         {
-            std::string str;
-            char x = str[0], y = str[2];
-            if(!isdigit(x) || !isdigit(y))
-                map[loadCounter.x][loadCounter.y] = sf::Vector2i(-1, -1);
-            else
-                map[loadCounter.x][loadCounter.y] = sf::Vector2i(x - '0', y - '0');
-
-            if(openfile.peek() == '/n')
-            {
-                loadCounter.x = 0;
-                loadCounter.y++;
-            }
-            else
-                loadCounter.x++;
+            timeSinceLastUpdate -= TimePerFrame;
+            processEvents();
+            update(TimePerFrame);
         }
-        loadCounter.y++;
+        render();
     }
+}
 
-    for(int i(0); i < loadCounter.x; ++i)
+void Game::handlePlayerInput(sf::Keyboard key, bool isPressed)
+{
+}
+
+void Game::processEvents()
+{
+    sf::Event event;
+    while(mWindow.pollEvent(event))
     {
-        for(int j(0); j < loadCounter.y; ++j)
+        switch(event.type)
         {
-            if(map[i][j].x != -1 && map[i][j].y != -1)
-            {
-                mTiles.setPosition(i * mTileTexture.getSize().x, j * mTileTexture.getSize().y);
-                mTiles.setTextureRect(sf::IntRect(map[i][j].x * mTileTexture.getSize().x, map[i][j].y * mTileTexture.getSize().y, mTileTexture.getSize().x, mTileTexture.getSize().y));
-                window.draw(mTiles);
-            }
+        case sf::Event::Closed :
+            mWindow.close();
+            break;
+
+        default :
+            break;
         }
     }
 }
 
+void Game::update(sf::Time)
+{
+}
+
+void Game::render()
+{
+    mWindow.clear();
+    mMap.load("Maps/Test_1.txt", mWindow);
+    mWindow.display();
+}
