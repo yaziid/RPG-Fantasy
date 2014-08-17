@@ -2,32 +2,35 @@
 #include <string>
 #include <fstream>
 #include <cctype>
+#include <iostream>
 
 #include "Map.hpp"
 
-void Map::load(std::string filename, sf::RenderWindow& window)
+void Map::load(std::string filename, sf::RenderTarget& target)
 {
-    std::fstream openfile(filename);
+    m_tilewidth = 16;
+    m_tileheight = 16;
 
-    sf::Vector2i map[100][100];
+    std::ifstream openfile(filename);
+    sf::Vector2i mape[200][200];
     sf::Vector2i loadCounter = sf::Vector2i(0, 0);
-
-    if(openfile)
+    if(openfile.is_open())
     {
         std::string tileLocation;
-        openfile << tileLocation;
+        openfile >> tileLocation;
         mTileTexture.loadFromFile(tileLocation);
         mTiles.setTexture(mTileTexture);
         while(!openfile.eof())
         {
             std::string str;
+            openfile >> str;
             char x = str[0], y = str[2];
             if(!isdigit(x) || !isdigit(y))
-                map[loadCounter.x][loadCounter.y] = sf::Vector2i(-1, -1);
+                mape[loadCounter.x][loadCounter.y] = sf::Vector2i(-1, -1);
             else
-                map[loadCounter.x][loadCounter.y] = sf::Vector2i(x - '0', y - '0');
+                mape[loadCounter.x][loadCounter.y] = sf::Vector2i(x - '0', y - '0');
 
-            if(openfile.peek() == '/n')
+            if(openfile.peek() == '\n')
             {
                 loadCounter.x = 0;
                 loadCounter.y++;
@@ -38,15 +41,15 @@ void Map::load(std::string filename, sf::RenderWindow& window)
         loadCounter.y++;
     }
 
-    for(int i(0); i < loadCounter.x; ++i)
+    for(int i = 0; i < loadCounter.x; i++)
     {
-        for(int j(0); j < loadCounter.y; ++j)
+        for(int j = 0; j < loadCounter.y; j++)
         {
-            if(map[i][j].x != -1 && map[i][j].y != -1)
+            if(mape[i][j].x != -1 && mape[i][j].y != -1)
             {
-                mTiles.setPosition(i * mTileTexture.getSize().x, j * mTileTexture.getSize().y);
-                mTiles.setTextureRect(sf::IntRect(map[i][j].x * mTileTexture.getSize().x, map[i][j].y * mTileTexture.getSize().y, mTileTexture.getSize().x, mTileTexture.getSize().y));
-                window.draw(mTiles);
+                mTiles.setPosition(i * m_tilewidth, j * m_tileheight);
+                mTiles.setTextureRect(sf::IntRect(mape[i][j].x * m_tilewidth, mape[i][j].y * m_tileheight, m_tilewidth, m_tileheight));
+                target.draw(mTiles);
             }
         }
     }
