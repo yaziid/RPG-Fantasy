@@ -22,6 +22,7 @@ private :
 private :
 
     sf::RenderWindow mWindow;
+    Map mMap;
 
 };
 
